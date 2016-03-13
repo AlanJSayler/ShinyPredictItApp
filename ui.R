@@ -14,7 +14,7 @@ shinyUI(fluidPage(
         
         "Probability of General Election Win" = 1,
         "Probability of Party Nomination" = 2,
-        "Electability*" = 3)),
+        "Electability*" = 3), selected = 1),
       checkboxGroupInput("parties", label = "Parties", choices = list(
         "Democrats" = 1,
         "Republicans" = 2),
@@ -35,6 +35,7 @@ shinyUI(fluidPage(
     
     # Show a plot
     mainPanel(
+      plotOutput("thePlot"),
       
       helpText(h4("Overview"), 
         div("This app displays the estimated probabilities of candidates winning their party's
@@ -46,7 +47,14 @@ shinyUI(fluidPage(
         p("A prediction market functions as an indicator of what 'the crowd' thinks is the
           probability of an event - as any person who believes that the current price overestimates
           or underestimates the probability of an event can buy or sell shares, expecting to make money.")
-        )
+        ),
+        h4("Why are the range of explorable dates so small?"),
+        div("PredictIt's API acts like a stock ticker, giving only current price information. As such,
+            the app only has historical price information from when this project began."),
+        h4("Can I modify and redistribute this app?"),
+        a("Yes", href='https://github.com/AlanJSayler/ShinyPredictItApp'),
+        br(),br(),
+        div("Created by Alan Sayler. Special Thanks to Dr. Karl Rohe for the idea.", style = "font-size:12px")
       )
     )
   )

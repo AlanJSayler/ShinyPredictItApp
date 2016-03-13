@@ -20,15 +20,61 @@ G$price = G$V2
 G$V2 = NULL
 G$date = G$V3
 G$V3 = NULL
+
+republicanNames = unique(as.character(R$name))
+democratNames = unique(as.character(D$name))
+P = rbind(D,R)
+
+findConditionalPrice = function(row,frame){
+  subframe = frame[which(as.character(frame$name) == as.character(row$name[1])),]
+  if(nrow(subframe) == 0){
+    return(-1)
+  }
+  closestPrice = subframe$price[which.min(abs(strptime(row$date,"%Y-%m-%d.%H:%M:%S")-strptime(subframe$date,"%Y-%m-%d.%H:%M:%S")))]
+  if(closestPrice == .01){
+    return(-1)
+  }
+  return(closestPrice/row$price)
+}
+
+
 #Server
 shinyServer(function(input, output) {
-  
+  output$thePlot = renderPlot({
+    currNames = c("DroopyMcCool")
+    if(is.element(1, input$parties)){
+     currNames = c(currNames, democratNames)
+    }
+    if(is.element(2,input$parties)){
+     currNames = c(currNames,republicanNames)
+    }
+    data = data.frame()
+    if(input$typeChoice == 1) {data = G}
+    
+    if(input$typeChoice == 2){data = P}
+    if(input$typeChoice == 3) {
+      data = P
+      for (i in 1:length(data[,1])){
+        data$price[i] = findConditionalPrice(data[i,],G)
+      }
+    }
+    
+    data = data[strptime(as.character(data$date), "%Y-%m-%d.%H:%M:%S") >= input$dates[1],]
+    
+    data = data[strptime(as.character(data$date), "%Y-%m-%d.%H:%M:%S") <= input$dates[2],]
+      
+    data = data[data$price != -1,]
+    
+    data = data[unlist(lapply(X = as.character(data$name), FUN = is.element,set = currNames)),]
+    #now that we've cleansed the data of unwanted names, let's make currname into just those names
+    #that actually appear
+    currname = unique(data)
+    print(data)
+    
+      
+    
+    
+    
+ })
 
-  
-  output$first <- renderText({
-    paste(D$date[1])   
-  })
-  output$last <- renderText({
-    paste(D$date[length(D$date)])
-  })
 })
