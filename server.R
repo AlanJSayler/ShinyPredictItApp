@@ -41,7 +41,7 @@ findConditionalPrice = function(row,frame){
 #Server
 shinyServer(function(input, output) {
   output$thePlot = renderPlot({
-    currNames = c("DroopyMcCool")
+    currNames = c()
     if(is.element(1, input$parties)){
      currNames = c(currNames, democratNames)
     }
@@ -64,12 +64,26 @@ shinyServer(function(input, output) {
     data = data[strptime(as.character(data$date), "%Y-%m-%d.%H:%M:%S") <= input$dates[2],]
       
     data = data[data$price != -1,]
-    
-    data = data[unlist(lapply(X = as.character(data$name), FUN = is.element,set = currNames)),]
+    if(nrow(data)> 0){
+    data = data[sapply(X = as.character(data$name), FUN = is.element,set = currNames),]
+    }
+    print(data)
     #now that we've cleansed the data of unwanted names, let's make currname into just those names
     #that actually appear
-    currname = unique(data)
-    print(data)
+    currNames = unique(data$name)
+    
+    plot(c(input$dates[1], input$dates[2]),c(0,1), type = 'n',
+      xlab = "Time", ylab = "Probability")
+    
+    for (i in 1:length(currNames)){
+      lines(
+        x = strptime(as.character(data$date[data$name == currNames[i]]), "%Y-%m-%d.%H:%M:%S"),
+        y = data$price[as.character(data$name) == currNames[i]], col = colors[i])
+    }
+    legend(x = "left",y = "center", currNames,col = colors, lty = c(1,1))
+    
+    
+    
     
       
     

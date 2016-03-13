@@ -14,7 +14,8 @@ shinyUI(fluidPage(
         
         "Probability of General Election Win" = 1,
         "Probability of Party Nomination" = 2,
-        "Electability*" = 3), selected = 1),
+        "Electability*" = 3), 
+        selected = 1),
       checkboxGroupInput("parties", label = "Parties", choices = list(
         "Democrats" = 1,
         "Republicans" = 2),
