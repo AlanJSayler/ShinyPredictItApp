@@ -20,7 +20,8 @@ G$price = G$V2
 G$V2 = NULL
 G$date = G$V3
 G$V3 = NULL
-
+myColors = c("red", "mediumblue", "green","gray0","gold","deeppink", "orangered", "tan4", "darkmagenta",
+             "cyan","chartreuse","burlywood4","forestgreen","mediumorchid3")
 republicanNames = unique(as.character(R$name))
 democratNames = unique(as.character(D$name))
 P = rbind(D,R)
@@ -35,6 +36,13 @@ findConditionalPrice = function(row,frame){
     return(-1)
   }
   return(closestPrice/row$price)
+}
+
+isCompetitive = function(name, data){
+  if(mean(data$price[data$name == name]) < .02){
+    return("Droopy McCool")
+  }
+  return(name)
 }
 
 
@@ -54,6 +62,11 @@ shinyServer(function(input, output) {
     if(input$typeChoice == 2){data = P}
     if(input$typeChoice == 3) {
       data = P
+      if(input$nonCompetitives == 0){
+        names = as.character(unique(data$name))
+        Competitives = sapply(X = names, FUN = isCompetitive, d = data)
+        data = data[sapply(X = as.character(data$name), FUN = is.element, set = Competitives),]
+      }
       for (i in 1:length(data[,1])){
         data$price[i] = findConditionalPrice(data[i,],G)
       }
@@ -65,9 +78,14 @@ shinyServer(function(input, output) {
       
     data = data[data$price != -1,]
     if(nrow(data)> 0){
-    data = data[sapply(X = as.character(data$name), FUN = is.element,set = currNames),]
+      data = data[sapply(X = as.character(data$name), FUN = is.element,set = currNames),]
+      if(input$nonCompetitives == 0 && nrow(data)> 0){
+        names = as.character(unique(data$name))
+        Competitives = sapply(X = names, FUN = isCompetitive, d = data)
+        data = data[sapply(X = as.character(data$name), FUN = is.element, set = Competitives),]
+      }
     }
-    print(data)
+   
     #now that we've cleansed the data of unwanted names, let's make currname into just those names
     #that actually appear
     currNames = unique(data$name)
@@ -78,15 +96,12 @@ shinyServer(function(input, output) {
     for (i in 1:length(currNames)){
       lines(
         x = strptime(as.character(data$date[data$name == currNames[i]]), "%Y-%m-%d.%H:%M:%S"),
-        y = data$price[as.character(data$name) == currNames[i]], col = colors[i])
+        y = data$price[as.character(data$name) == currNames[i]], col = myColors[i])
     }
-    legend(x = "left",y = "center", currNames,col = colors, lty = c(1,1))
-    
-    
-    
-    
-      
-    
+    if(length(currNames)> 0){
+      par(xpd = TRUE)
+      legend(x = "topleft", y = NULL, currNames,col = myColors, lty = c(1,1))
+    }
     
     
  })

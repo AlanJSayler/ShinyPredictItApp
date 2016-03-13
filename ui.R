@@ -25,6 +25,9 @@ shinyUI(fluidPage(
         max = last,
         value = c(first,last) 
         ),
+      checkboxInput("nonCompetitives",
+        label = "Show dropped out and non-competitive candidates",
+        value = 0),
       em("* Electibility is defined here as the probability of a general election win, 
         assuming party nomination.
         PredictIt does not take bets on this, instead, it is calculated in the app. Note that 
