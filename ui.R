@@ -10,21 +10,26 @@ shinyUI(fluidPage(
  
   sidebarLayout(
     sidebarPanel(
+      #get input about what the user wants to see - general election
+      #probabilities, nomination probability, or electability/conditional probability
       radioButtons("typeChoice", label = "Mode",  choices = list(
         
         "Probability of General Election Win" = 1,
         "Probability of Party Nomination" = 2,
         "Electability*" = 3), 
         selected = 1),
+      #get data about which party the user wants to see
       checkboxGroupInput("parties", label = "Parties", choices = list(
         "Democrats" = 1,
         "Republicans" = 2),
         selected = c(1,2)),
+      #get data from user about the time range they want
       sliderInput("dates", label = "Time Range", 
         min = first,
         max = last,
         value = c(first,last) 
         ),
+      #get input for if the user wants only competitive candidates
       checkboxInput("nonCompetitives",
         label = "Show dropped out and non-competitive candidates",
         value = 0),
