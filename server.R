@@ -35,7 +35,9 @@ findConditionalPrice = function(row,frame){
   if(nrow(subframe) == 0){
     return(-1)
   }
-  closestPrice = subframe$price[which.min(abs(strptime(row$date,"%Y-%m-%d.%H:%M:%S")-strptime(subframe$date,"%Y-%m-%d.%H:%M:%S")))]
+  closestPrice = subframe$price[
+    which.min(abs(strptime(row$date,"%Y-%m-%d.%H:%M:%S")-
+                  strptime(subframe$date,"%Y-%m-%d.%H:%M:%S")))]
   #A closest price of .01 almost certainly means that the last trade was months ago, 
   #and the person is out of the race, if we kept this data in, we'd get weird results
   #like Bobby Jindal having a 100% chance of winning the general if he's nominated.
