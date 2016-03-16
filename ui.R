@@ -68,11 +68,7 @@ shinyUI(fluidPage(
             the app only has historical price information from when this 
             project began."),
         h4("Can I modify and redistribute this app?"),
-        a("Yes", href='https://github.com/AlanJSayler/ShinyPredictItApp'),
-        br(),br(),
-        div("Created by Alan Sayler. 
-            Special Thanks to Dr. Karl Rohe for the idea.", 
-            style = "font-size:12px")
+        a("Yes", href='https://github.com/AlanJSayler/ShinyPredictItApp')
       )
     )
   )
