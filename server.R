@@ -1,4 +1,5 @@
 library(shiny)
+library(colorspace)
 
 #read data for Democratic primaries
 D = read.csv("DNOM16.csv", header = FALSE,
@@ -10,19 +11,23 @@ R = read.csv("RNOM16.csv", header = FALSE,
 G = read.csv("USPREZ16.csv", header = FALSE,
              col.names = c("name", "price", "date"))
 
-#make new color array.
-#I tried to use colors that are different to eachother
-#so it'll be easier to tell candidates apart
-myColors = c("red", "mediumblue", "green",
-             "gray0","gold","deeppink", 
-             "orangered", "tan4", "darkmagenta",
-             "cyan","chartreuse","burlywood4",
-             "forestgreen","mediumorchid3")
 #get an array of each party's name, to subset general election data
 republicanNames = unique(as.character(R$name))
 democratNames = unique(as.character(D$name))
 #primary master dataset
 P = rbind(D,R)
+
+allNames = c()
+allNames = c(democratNames, republicanNames)
+
+#make new color array.
+#I tried to use colors that are different to eachother
+#so it'll be easier to tell candidates apart
+# Start with a rainbox_hcl vector of evenly spaced colors, then
+# randomize the order. This way, color assigned to candidate will
+# be stable across the application.
+myColors = sample(diverge_hcl(length(allNames)))
+
 
 
 #function to match prices from primary data to general election data,
@@ -54,7 +59,6 @@ isCompetitive = function(name, data){
   }
   return(name)
 }
-
 
 #Server
 shinyServer(function(input, output) {
@@ -114,23 +118,23 @@ shinyServer(function(input, output) {
    
     #now that we've cleansed the data of unwanted names,
     #let's make currname into just those names that actually appear
-    currNames = unique(data$name)
+    nameIdxs = which(allNames %in% unique(data$name))
     #set up empty plot
     plot(c(input$dates[1], input$dates[2]),c(0,1), type = 'n',
       xlab = "Time", ylab = "Probability")
     
     #draw the lines onth  plot by name.
-    for (i in 1:length(currNames)){
+    for (i in nameIdxs){
       lines(
-        x = strptime(as.character(data$date[data$name == currNames[i]]),
+        x = strptime(as.character(data$date[data$name == allNames[i]]),
                      "%Y-%m-%d.%H:%M:%S"),
-        y = data$price[as.character(data$name) == currNames[i]],
+        y = data$price[as.character(data$name) == allNames[i]],
                       col = myColors[i])
     }
     #provided that the plot is nonempty, add a legend
-    if(length(currNames)> 0){
+    if(length(nameIdxs)> 0){
       par(xpd = TRUE)
-      legend(x = "topleft", y = NULL, currNames,col = myColors, lty = c(1,1))
+      legend(x = "topleft", y = NULL, allNames[nameIdxs],col = myColors[nameIdxs], lty = c(1,1))
     }
     
  })#end render plot
