@@ -26,7 +26,7 @@ allNames = c(democratNames, republicanNames)
 # Start with a rainbox_hcl vector of evenly spaced colors, then
 # randomize the order. This way, color assigned to candidate will
 # be stable across the application.
-myColors = sample(diverge_hcl(length(allNames)))
+myColors = sample(rainbow(length(allNames)))
 
 
 
