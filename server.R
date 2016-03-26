@@ -1,15 +1,24 @@
 library(shiny)
 library(colorspace)
+library(dplyr)
+
+# Normalize price over market by date
+normalizePricesToProbs <- function(market) {
+  # Total market price by date
+  priceByDate <- summarize(group_by(market, date), tot_price = sum(price))
+  marketWithPrice <- left_join(market, priceByDate)
+  return(mutate(marketWithPrice, prob = price / tot_price))
+}
 
 #read data for Democratic primaries
 D = read.csv("DNOM16.csv", header = FALSE,
-             col.names = c("name", "price", "date"))
+             col.names = c("name", "price", "date")) %>% filter(price > 0.01) %>% normalizePricesToProbs
 #read data for Republican primaries
 R = read.csv("RNOM16.csv", header = FALSE, 
-             col.names = c("name", "price", "date"))
+             col.names = c("name", "price", "date")) %>% filter(price > 0.01) %>% normalizePricesToProbs
 #read data for General election
 G = read.csv("USPREZ16.csv", header = FALSE,
-             col.names = c("name", "price", "date"))
+             col.names = c("name", "price", "date")) %>% filter(price > 0.01) %>% normalizePricesToProbs
 
 #get an array of each party's name, to subset general election data
 republicanNames = unique(as.character(R$name))
@@ -40,7 +49,7 @@ findConditionalPrice = function(row,frame){
   if(nrow(subframe) == 0){
     return(-1)
   }
-  closestPrice = subframe$price[
+  closestPrice = subframe$prob[
     which.min(abs(strptime(row$date,"%Y-%m-%d.%H:%M:%S")-
                   strptime(subframe$date,"%Y-%m-%d.%H:%M:%S")))]
   #A closest price of .01 almost certainly means that the last trade was months ago, 
@@ -49,12 +58,12 @@ findConditionalPrice = function(row,frame){
   if(closestPrice == .01){
     return(-1)
   }
-  return(closestPrice/row$price)
+  return(closestPrice/row$prob)
 }
 #return candidate name if they are competitive
 #return nonsense name: Droopy McCool if they aren't
 isCompetitive = function(name, data){
-  if(mean(data$price[data$name == name]) < .02){
+  if(mean(data$prob[data$name == name]) < .02){
     return("Droopy McCool")
   }
   return(name)
@@ -90,7 +99,7 @@ shinyServer(function(input, output) {
       #set the prices to conditional price
       #This should really be rewritten with apply rather than a loop...
       for (i in 1:length(data[,1])){
-        data$price[i] = findConditionalPrice(data[i,],G)
+        data$prob[i] = findConditionalPrice(data[i,],G)
       }
     }
     #take out data that is before the minimum date
@@ -100,7 +109,7 @@ shinyServer(function(input, output) {
     data = data[strptime(as.character(data$date), "%Y-%m-%d.%H:%M:%S")
                 <= input$dates[2],]
     #take out data that was not set to -1 by setConditionalPrice  
-    data = data[data$price != -1,]
+    data = data[data$prob != -1,]
     #provided that we have data left,
     #take out any data that is not in the list of current names
     #this would take out data of the wrong party, for example
@@ -128,7 +137,7 @@ shinyServer(function(input, output) {
       lines(
         x = strptime(as.character(data$date[data$name == allNames[i]]),
                      "%Y-%m-%d.%H:%M:%S"),
-        y = data$price[as.character(data$name) == allNames[i]],
+        y = data$prob[as.character(data$name) == allNames[i]],
                       col = myColors[i])
     }
     #provided that the plot is nonempty, add a legend
