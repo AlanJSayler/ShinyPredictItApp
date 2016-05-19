@@ -67,6 +67,11 @@ shinyUI(fluidPage(
             giving only current price information. As such,
             the app only has historical price information from when this 
             project began."),
+        h4("Why do some probabilities appear to exceed one?"),
+        div("We normalize the probabilities within individual markets to equal one, this allows
+            for the possibility of some probabilities appearing to exceed one when two markets are
+            combined in the calculation of electability, if the denominator is reduced significantly, while
+            the numerator isn't"),
         h4("Can I modify and redistribute this app?"),
         a("Yes", href='https://github.com/AlanJSayler/ShinyPredictItApp')
       )
