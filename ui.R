@@ -39,7 +39,7 @@ shinyUI(fluidPage(
           PredictIt does not take bets on this, instead, 
           it is calculated in the app. Note that this is working under the 
           assumption that no candidate can win without
-          their party nomination,which may or may not be true")
+          their party nomination, which may or may not be true.")
     ), #end sidebar
     
     
@@ -71,7 +71,7 @@ shinyUI(fluidPage(
         div("We normalize the probabilities within individual markets to equal one, this allows
             for the possibility of some probabilities appearing to exceed one when two markets are
             combined in the calculation of electability, if the denominator is reduced significantly, while
-            the numerator isn't"),
+            the numerator isn't."),
         h4("Can I modify and redistribute this app?"),
         a("Yes", href='https://github.com/AlanJSayler/ShinyPredictItApp')
       )
